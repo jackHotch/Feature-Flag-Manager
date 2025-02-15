@@ -16,7 +16,8 @@ interface LoginFormProps extends React.ComponentPropsWithoutRef<'div'> {
   setEmail: Dispatch<SetStateAction<string>>
   password: string
   setPassword: Dispatch<SetStateAction<string>>
-  login: (e) => void
+  login: (e: any) => void
+  className?: any
 }
 
 export function LoginForm({
