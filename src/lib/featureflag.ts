@@ -1,4 +1,11 @@
-import { getDocs, collection, setDoc, doc } from 'firebase/firestore'
+import {
+  getDocs,
+  collection,
+  setDoc,
+  doc,
+  deleteDoc,
+  writeBatch,
+} from 'firebase/firestore'
 import { auth, db } from './firebase'
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth'
 
@@ -34,7 +41,26 @@ export const createFlag = async (flag, closeDialog) => {
   try {
     await setDoc(docRef, data)
     closeDialog()
+    location.reload()
   } catch (err) {
     console.error(err)
+  }
+}
+
+export const deleteFlags = async (flagNames: string[]) => {
+  if (flagNames.length === 0) return
+
+  try {
+    const batch = writeBatch(db)
+
+    flagNames.forEach((name) => {
+      const docRef = doc(db, 'gymapp', name)
+      batch.delete(docRef)
+    })
+
+    await batch.commit()
+    location.reload()
+  } catch (error) {
+    console.error('Error deleting documents: ', error)
   }
 }

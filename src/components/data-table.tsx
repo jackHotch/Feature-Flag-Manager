@@ -35,6 +35,8 @@ import {
 } from '@/components/ui/table'
 import { Switch } from './ui/switch'
 import { CreateFlagDialog } from './create-flag-dialog'
+import { deleteFlags } from '@/lib/featureflag'
+import { DeleteFlagDialog } from './delete-flag-dialog'
 
 interface FeatureFlagData {
   show?: boolean
@@ -122,7 +124,7 @@ export const columns: ColumnDef<Flag>[] = [
   {
     id: 'actions',
     enableHiding: false,
-    cell: () => {
+    cell: ({ row }) => {
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -134,9 +136,14 @@ export const columns: ColumnDef<Flag>[] = [
           <DropdownMenuContent align='end'>
             <DropdownMenuItem>Edit</DropdownMenuItem>
             <DropdownMenuItem>Rename</DropdownMenuItem>
-            <DropdownMenuItem className='text-destructive focus:text-destructive'>
-              Delete
-            </DropdownMenuItem>
+            <DeleteFlagDialog action={() => deleteFlags([row.getValue('name')])}>
+              <DropdownMenuItem
+                onSelect={(e) => e.preventDefault()}
+                className='text-destructive focus:text-destructive'
+              >
+                Delete
+              </DropdownMenuItem>
+            </DeleteFlagDialog>
           </DropdownMenuContent>
         </DropdownMenu>
       )
@@ -174,6 +181,12 @@ export function DataTable({ data }: DataTableProps) {
       rowSelection,
     },
   })
+
+  const deleteSelectedRows = async () => {
+    const selectedFlags = table.getSelectedRowModel().rows.map((row) => row.original.name)
+    await deleteFlags(selectedFlags)
+    location.reload()
+  }
 
   return (
     <div className='w-full'>
@@ -255,11 +268,14 @@ export function DataTable({ data }: DataTableProps) {
           {table.getFilteredSelectedRowModel().rows.length} of{' '}
           {table.getFilteredRowModel().rows.length} row(s) selected.
         </div>
+
         <div>
           {table.getFilteredSelectedRowModel().rows.length > 0 && (
-            <Button variant='destructive'>
-              Delete {table.getFilteredSelectedRowModel().rows.length} Flags
-            </Button>
+            <DeleteFlagDialog action={deleteSelectedRows}>
+              <Button variant='destructive'>
+                Delete {table.getFilteredSelectedRowModel().rows.length} Flag(s)
+              </Button>
+            </DeleteFlagDialog>
           )}
         </div>
       </div>
