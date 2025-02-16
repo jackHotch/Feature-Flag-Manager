@@ -1,39 +1,31 @@
 'use client'
 
-import { auth, db } from '@/lib/firebase'
-import { getDocs, collection } from 'firebase/firestore'
+import { auth } from '@/lib/firebase'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { DataTable } from '@/components/data-table'
 import { ProfileIcon } from '@/components/profile-icon'
+import { getFlags } from '@/lib/featureflag'
+import { Dialog } from '@/components/ui/dialog'
 
 export default function Dashboard() {
   const router = useRouter()
   const [flags, setFlags] = useState([])
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false)
 
-  const fetchItems = async () => {
-    const data = await getDocs(collection(db, 'gymapp'))
-    const filteredData = data.docs.map((doc) => ({
-      ...doc.data(),
-      name: doc.id,
-    }))
-    setFlags(filteredData)
-  }
-
   useEffect(() => {
-    if (auth?.currentUser) {
-      setIsUserLoggedIn(true)
-      fetchItems()
-    } else {
-      router.push('/')
-    }
-    fetchItems()
+    // if (auth?.currentUser) {
+    //   setIsUserLoggedIn(true)
+    //   fetchItems()
+    // } else {
+    //   router.push('/')
+    // }
+    getFlags(setFlags)
   }, [])
 
-  if (!isUserLoggedIn) {
-    return null
-  }
+  // if (!isUserLoggedIn) {
+  //   return null
+  // }
 
   return (
     <div className='flex flex-col items-center'>

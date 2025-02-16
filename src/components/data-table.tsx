@@ -34,6 +34,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Switch } from './ui/switch'
+import { createFlag } from '@/lib/featureflag'
 
 interface FeatureFlagData {
   show?: boolean
@@ -209,6 +210,7 @@ export function DataTable({ data }: DataTableProps) {
               })}
           </DropdownMenuContent>
         </DropdownMenu>
+        <Button className='ml-4'>New Flag</Button>
       </div>
       <div className='rounded-md border'>
         <Table>

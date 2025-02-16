@@ -1,0 +1,23 @@
+import { getDocs, collection, setDoc, doc } from 'firebase/firestore'
+import { db } from './firebase'
+
+export const getFlags = async (setFlags) => {
+  const data = await getDocs(collection(db, 'gymapp'))
+  const filteredData = data.docs.map((doc) => ({
+    ...doc.data(),
+    name: doc.id,
+  }))
+  setFlags(filteredData)
+}
+
+export const createFlag = async (flag, closeDialog) => {
+  const collectionRef = collection(db, 'gymapp')
+  const { name, ...data } = flag
+  const docRef = doc(collectionRef, name)
+  try {
+    await setDoc(docRef, data)
+    closeDialog()
+  } catch (err) {
+    console.error(err)
+  }
+}
