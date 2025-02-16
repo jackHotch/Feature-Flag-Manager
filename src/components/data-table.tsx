@@ -34,7 +34,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Switch } from './ui/switch'
-import { createFlag } from '@/lib/featureflag'
+import { CreateFlagDialog } from './create-flag-dialog'
 
 interface FeatureFlagData {
   show?: boolean
@@ -108,10 +108,10 @@ export const columns: ColumnDef<Flag>[] = [
     header: 'Data',
     cell: ({ row }) => {
       const objectValue = row.getValue('data') as { [key: string]: any }
-      if (objectValue && objectValue.show === true) {
+      if (objectValue && objectValue.hasOwnProperty('show')) {
         return (
           <div>
-            <Switch disabled />
+            <Switch disabled checked={objectValue.show} />
           </div>
         )
       } else {
@@ -210,7 +210,7 @@ export function DataTable({ data }: DataTableProps) {
               })}
           </DropdownMenuContent>
         </DropdownMenu>
-        <Button className='ml-4'>New Flag</Button>
+        <CreateFlagDialog />
       </div>
       <div className='rounded-md border'>
         <Table>
