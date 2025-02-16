@@ -1,12 +1,11 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
 import { auth, db } from '@/lib/firebase'
-import { signOut } from 'firebase/auth'
 import { getDocs, collection } from 'firebase/firestore'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { DataTable } from '@/components/data-table'
+import { ProfileIcon } from '@/components/profile-icon'
 
 export default function Dashboard() {
   const router = useRouter()
@@ -23,37 +22,35 @@ export default function Dashboard() {
   }
 
   useEffect(() => {
-    // if (auth?.currentUser) {
-    //   setIsUserLoggedIn(true)
-    //   fetchItems()
-    // } else {
-    //   router.push('/')
-    // }
+    if (auth?.currentUser) {
+      setIsUserLoggedIn(true)
+      fetchItems()
+    } else {
+      router.push('/')
+    }
     fetchItems()
   }, [])
 
-  const logout = async () => {
-    try {
-      await signOut(auth)
-      router.push('/')
-    } catch (err) {
-      console.error(err)
-    }
+  if (!isUserLoggedIn) {
+    return null
   }
-
-  // if (!isUserLoggedIn) {
-  //   return null
-  // }
 
   return (
     <div className='flex flex-col items-center'>
-      <h1 className='text-4xl font-extrabold'>
-        {auth?.currentUser ? 'logged in' : 'no'}
-      </h1>
-      <div className='w-full max-w-6xl'>
-        <DataTable data={flags} />
+      <div className='w-full max-w-[75vw] flex flex-col gap-4'>
+        <div className='flex justify-between w-full items-center'>
+          <div className='flex gap-4 items-center'>
+            <img src='/logo128.png' className='w-[32px] h-[32px]' />
+            <h2 className='scroll-m-20 text-2xl font-semibold tracking-tight'>
+              Feature Flag Manager
+            </h2>
+          </div>
+          <ProfileIcon />
+        </div>
+        <div className='w-full'>
+          <DataTable data={flags} />
+        </div>
       </div>
-      <Button onClick={logout}>Logout</Button>
     </div>
   )
 }
