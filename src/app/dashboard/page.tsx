@@ -14,18 +14,18 @@ export default function Dashboard() {
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false)
 
   useEffect(() => {
-    // if (auth?.currentUser) {
-    //   setIsUserLoggedIn(true)
-    //   fetchItems()
-    // } else {
-    //   router.push('/')
-    // }
+    if (auth?.currentUser) {
+      setIsUserLoggedIn(true)
+      fetchItems()
+    } else {
+      router.push('/')
+    }
     getFlags(setFlags)
   }, [])
 
-  // if (!isUserLoggedIn) {
-  //   return null
-  // }
+  if (!isUserLoggedIn) {
+    return null
+  }
 
   return (
     <div className='flex flex-col items-center p-6 md:p-10'>

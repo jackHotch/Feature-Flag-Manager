@@ -14,7 +14,6 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 import { ArrowUpDown, ChevronDown, MoreHorizontal } from 'lucide-react'
-
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
@@ -37,6 +36,7 @@ import { Switch } from './ui/switch'
 import { CreateFlagDialog } from './create-flag-dialog'
 import { deleteFlags } from '@/lib/featureflag'
 import { DeleteFlagDialog } from './delete-flag-dialog'
+import { UpdateFlagDialog } from './update-flag-dialog'
 
 interface FeatureFlagData {
   show?: boolean
@@ -134,8 +134,11 @@ export const columns: ColumnDef<Flag>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align='end'>
-            <DropdownMenuItem>Edit</DropdownMenuItem>
-            <DropdownMenuItem>Rename</DropdownMenuItem>
+            <UpdateFlagDialog originalValues={row.original}>
+              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                Edit
+              </DropdownMenuItem>
+            </UpdateFlagDialog>
             <DeleteFlagDialog action={() => deleteFlags([row.getValue('name')])}>
               <DropdownMenuItem
                 onSelect={(e) => e.preventDefault()}
@@ -181,6 +184,7 @@ export function DataTable({ data }: DataTableProps) {
       rowSelection,
     },
   })
+  // console.log(table.getSelectedRowModel().rows[0].original)
 
   const deleteSelectedRows = async () => {
     const selectedFlags = table.getSelectedRowModel().rows.map((row) => row.original.name)

@@ -1,6 +1,10 @@
 import { ThemeProvider } from '@/providers/theme-provider'
 import './globals.css'
 
+export const metadata = {
+  title: 'Feature Flags',
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{

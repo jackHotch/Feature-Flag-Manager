@@ -34,14 +34,12 @@ export const getFlags = async (setFlags) => {
   setFlags(filteredData)
 }
 
-export const createFlag = async (flag, closeDialog) => {
+export const createFlag = async (flag) => {
   const collectionRef = collection(db, 'gymapp')
   const { name, ...data } = flag
   const docRef = doc(collectionRef, name)
   try {
     await setDoc(docRef, data)
-    closeDialog()
-    location.reload()
   } catch (err) {
     console.error(err)
   }
@@ -62,5 +60,16 @@ export const deleteFlags = async (flagNames: string[]) => {
     location.reload()
   } catch (error) {
     console.error('Error deleting documents: ', error)
+  }
+}
+
+export const updateFlag = async (flag) => {
+  const collectionRef = collection(db, 'gymapp')
+  const { name, ...data } = flag
+  const docRef = doc(collectionRef, name)
+  try {
+    await setDoc(docRef, data)
+  } catch (err) {
+    console.error(err)
   }
 }

@@ -24,7 +24,8 @@ import {
 import { Switch } from '@/components/ui/switch'
 import { Trash2 } from 'lucide-react'
 import dayjs from 'dayjs'
-import { createFlag } from '@/lib/featureflag'
+import { updateFlag } from '@/lib/featureflag'
+import { transformObject } from '@/lib/utils'
 
 const formSchema = z.object({
   name: z.string(),
@@ -37,15 +38,18 @@ const formSchema = z.object({
     .optional(),
 })
 
-export const CreateFlagForm = ({ closeDialog }) => {
+export const UpdateFlagForm = ({ originalValues, closeDialog }) => {
+  const transformedJson = transformObject(originalValues.data)
+  const originalType = originalValues.data.hasOwnProperty('show') ? 'toggle' : 'json'
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: '',
-      description: '',
-      type: '',
-      toggle: false,
-      json: [{ key: '', value: '' }],
+      name: originalValues.name,
+      description: originalValues.description,
+      type: originalType,
+      toggle: originalValues.data.show,
+      json: transformedJson,
     },
   })
 
@@ -64,12 +68,12 @@ export const CreateFlagForm = ({ closeDialog }) => {
     const flag = {
       name: values.name,
       description: values.description,
-      createdAt: dayjs().format('MM/DD/YYYY'),
+      createdAt: originalValues.createdAt,
       updatedAt: dayjs().format('MM/DD/YYYY'),
       data: data,
     }
 
-    await createFlag(flag)
+    await updateFlag(flag)
     closeDialog()
     location.reload()
   }
