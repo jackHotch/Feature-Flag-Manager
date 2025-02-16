@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation'
 import { DataTable } from '@/components/data-table'
 import { ProfileIcon } from '@/components/profile-icon'
 import { getFlags } from '@/lib/featureflag'
-import { Dialog } from '@/components/ui/dialog'
 
 export default function Dashboard() {
   const router = useRouter()
@@ -16,11 +15,10 @@ export default function Dashboard() {
   useEffect(() => {
     if (auth?.currentUser) {
       setIsUserLoggedIn(true)
-      fetchItems()
+      getFlags(setFlags)
     } else {
       router.push('/')
     }
-    getFlags(setFlags)
   }, [])
 
   if (!isUserLoggedIn) {
