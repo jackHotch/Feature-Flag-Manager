@@ -1,5 +1,22 @@
 import { getDocs, collection, setDoc, doc } from 'firebase/firestore'
-import { db } from './firebase'
+import { auth, db } from './firebase'
+import { signInWithEmailAndPassword, signOut } from 'firebase/auth'
+
+export const login = async (email: string, password: string) => {
+  try {
+    await signInWithEmailAndPassword(auth, email, password)
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+export const logout = async () => {
+  try {
+    await signOut(auth)
+  } catch (err) {
+    console.error(err)
+  }
+}
 
 export const getFlags = async (setFlags) => {
   const data = await getDocs(collection(db, 'gymapp'))

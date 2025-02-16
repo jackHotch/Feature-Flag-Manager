@@ -17,7 +17,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <div className='p-6 md:p-10'>{children}</div>
+            <div>{children}</div>
           </ThemeProvider>
         </body>
       </html>

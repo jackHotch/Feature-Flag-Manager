@@ -5,15 +5,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { auth } from '@/lib/firebase'
-import { signOut } from 'firebase/auth'
 import { useRouter } from 'next/navigation'
+import { logout } from '@/lib/featureflag'
 
 export const ProfileIcon = () => {
   const router = useRouter()
-  const logout = async () => {
+  const signOut = async () => {
     try {
-      await signOut(auth)
+      await logout()
       router.push('/')
     } catch (err) {
       console.error(err)
@@ -28,7 +27,7 @@ export const ProfileIcon = () => {
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent align='end'>
-        <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
+        <DropdownMenuItem onClick={signOut}>Logout</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )

@@ -1,34 +1,59 @@
+'use client'
+import { useState } from 'react'
 import { cn } from '@/lib/utils'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as z from 'zod'
 import { Button } from '@/components/ui/button'
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card'
 import { Dispatch, SetStateAction } from 'react'
+import { Label } from './ui/label'
+import { Loader2 } from 'lucide-react'
+import { login } from '@/lib/featureflag'
+import { useRouter } from 'next/navigation'
+
+const formSchema = z.object({
+  email: z.string().email(),
+  password: z.string(),
+})
 
 interface LoginFormProps extends React.ComponentPropsWithoutRef<'div'> {
-  email: string
-  setEmail: Dispatch<SetStateAction<string>>
-  password: string
-  setPassword: Dispatch<SetStateAction<string>>
-  login: (e: any) => void
   className?: any
 }
 
-export function LoginForm({
-  email,
-  setEmail,
-  password,
-  setPassword,
-  login,
-  className,
-  ...props
-}: LoginFormProps) {
+export const LoginForm = ({ className, ...props }: LoginFormProps) => {
+  const router = useRouter()
+  const [loading, setLoading] = useState(false)
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  })
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    setLoading(true)
+    try {
+      await login(values.email, values.password)
+    } catch (err) {
+      console.error(err)
+      setLoading(false)
+    }
+    router.push('/dashboard')
+  }
+
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card>
@@ -39,40 +64,51 @@ export function LoginForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
-            <div className='flex flex-col gap-6'>
-              <div className='grid gap-2'>
-                <Label htmlFor='email'>Email</Label>
-                <Input
-                  id='email'
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-              <div className='grid gap-2'>
-                <div className='flex items-center'>
-                  <Label htmlFor='password'>Password</Label>
-                  <a
-                    href='#'
-                    className='ml-auto inline-block text-sm underline-offset-4 hover:underline'
-                  >
-                    Forgot your password?
-                  </a>
-                </div>
-                <Input
-                  id='password'
-                  type='password'
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-              <Button type='submit' className='w-full' onClick={(e) => login(e)}>
-                Login
-              </Button>
-            </div>
-          </form>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className='flex flex-col gap-6'>
+              <FormField
+                control={form.control}
+                name='email'
+                render={({ field }) => (
+                  <FormItem className='flex flex-col'>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input type='email' {...field} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name='password'
+                render={({ field }) => (
+                  <FormItem className='flex flex-col'>
+                    <div className='flex justify-between items-center'>
+                      <FormLabel>Password</FormLabel>
+                      <a
+                        href='#'
+                        className='ml-auto inline-block text-sm underline-offset-4 hover:underline'
+                      >
+                        Forgot your password?
+                      </a>
+                    </div>
+                    <FormControl>
+                      <Input type='password' {...field} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              {loading ? (
+                <Button disabled type='button'>
+                  <Loader2 className='animate-spin' />
+                  Please wait
+                </Button>
+              ) : (
+                <Button type='submit'>Login</Button>
+              )}
+            </form>
+          </Form>
         </CardContent>
       </Card>
     </div>
