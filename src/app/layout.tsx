@@ -1,5 +1,6 @@
 import { ThemeProvider } from '@/providers/theme-provider'
 import './globals.css'
+import { AuthProvider } from '@/hooks/auth-provider'
 
 export const metadata = {
   title: 'Feature Flags',
@@ -15,14 +16,16 @@ export default function RootLayout({
       <html lang='en' suppressHydrationWarning>
         <head />
         <body>
-          <ThemeProvider
-            attribute='class'
-            defaultTheme='dark'
-            enableSystem
-            disableTransitionOnChange
-          >
-            <div>{children}</div>
-          </ThemeProvider>
+          <AuthProvider>
+            <ThemeProvider
+              attribute='class'
+              defaultTheme='dark'
+              enableSystem
+              disableTransitionOnChange
+            >
+              <div>{children}</div>
+            </ThemeProvider>
+          </AuthProvider>
         </body>
       </html>
     </>
