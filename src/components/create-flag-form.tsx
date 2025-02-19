@@ -56,7 +56,7 @@ export const CreateFlagForm = ({ closeDialog }) => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     let data = {}
     if (values.type == 'toggle') {
-      data = { show: values.toggle }
+      data = { toggle: values.toggle }
     } else {
       values.json.map((values) => (data[values.key] = values.value))
     }

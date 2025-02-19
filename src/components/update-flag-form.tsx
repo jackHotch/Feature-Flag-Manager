@@ -40,15 +40,14 @@ const formSchema = z.object({
 
 export const UpdateFlagForm = ({ originalValues, closeDialog }) => {
   const transformedJson = transformObject(originalValues.data)
-  const originalType = originalValues.data.hasOwnProperty('show') ? 'toggle' : 'json'
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: originalValues.name,
       description: originalValues.description,
-      type: originalType,
-      toggle: originalValues.data.show,
+      type: originalValues.type,
+      toggle: originalValues.data.toggle,
       json: transformedJson,
     },
   })
@@ -60,7 +59,7 @@ export const UpdateFlagForm = ({ originalValues, closeDialog }) => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     let data = {}
     if (values.type == 'toggle') {
-      data = { show: values.toggle }
+      data = { toggle: values.toggle }
     } else {
       values.json.map((values) => (data[values.key] = values.value))
     }

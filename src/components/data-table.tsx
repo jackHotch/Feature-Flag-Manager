@@ -39,7 +39,7 @@ import { DeleteFlagDialog } from './delete-flag-dialog'
 import { UpdateFlagDialog } from './update-flag-dialog'
 
 interface FeatureFlagData {
-  show?: boolean
+  toggle?: boolean
   [key: string]: any
 }
 
@@ -48,6 +48,7 @@ export type Flag = {
   description: string
   createdAt: string
   updatedAt: string
+  type: string
   data: FeatureFlagData
 }
 
@@ -106,18 +107,29 @@ export const columns: ColumnDef<Flag>[] = [
     cell: ({ row }) => <div className='lowercase'>{row.getValue('updatedAt')}</div>,
   },
   {
+    accessorKey: 'type',
+    header: 'Type',
+    cell: () => <></>,
+    enableHiding: false,
+  },
+  {
     accessorKey: 'data',
     header: 'Data',
     cell: ({ row }) => {
       const objectValue = row.getValue('data') as { [key: string]: any }
-      if (objectValue && objectValue.hasOwnProperty('show')) {
+      const type = row.getValue('type')
+      if (type && type == 'toggle') {
         return (
           <div>
-            <Switch disabled checked={objectValue.show} />
+            <Switch disabled checked={objectValue.toggle} />
           </div>
         )
       } else {
-        return <div>{JSON.stringify(objectValue)}</div>
+        return (
+          <div className='whitespace-nowrap max-w-sm overflow-hidden'>
+            {JSON.stringify(objectValue)}
+          </div>
+        )
       }
     },
   },
@@ -163,6 +175,7 @@ export function DataTable({ data }: DataTableProps) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({
     createdAt: false,
+    type: false,
   })
   const [rowSelection, setRowSelection] = React.useState({})
 
@@ -184,7 +197,6 @@ export function DataTable({ data }: DataTableProps) {
       rowSelection,
     },
   })
-  // console.log(table.getSelectedRowModel().rows[0].original)
 
   const deleteSelectedRows = async () => {
     const selectedFlags = table.getSelectedRowModel().rows.map((row) => row.original.name)

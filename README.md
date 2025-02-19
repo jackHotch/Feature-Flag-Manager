@@ -2,6 +2,8 @@
 
 _Created by_: Jack Hotchkiss
 
+![Screenshot](/public/screenshot.png)
+
 ## About the Project
 
 ### Description

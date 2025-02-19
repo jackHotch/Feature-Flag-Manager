@@ -1,11 +1,4 @@
-import {
-  getDocs,
-  collection,
-  setDoc,
-  doc,
-  deleteDoc,
-  writeBatch,
-} from 'firebase/firestore'
+import { getDocs, collection, setDoc, doc, writeBatch } from 'firebase/firestore'
 import { auth, db } from './firebase'
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth'
 
