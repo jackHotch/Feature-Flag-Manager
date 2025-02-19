@@ -1,6 +1,6 @@
 import { ThemeProvider } from '@/providers/theme-provider'
 import './globals.css'
-import { AuthProvider } from '@/hooks/auth-provider'
+import { AuthProvider } from '@/providers/auth-provider'
 
 export const metadata = {
   title: 'Feature Flags',
