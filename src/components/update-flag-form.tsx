@@ -69,6 +69,7 @@ export const UpdateFlagForm = ({ originalValues, closeDialog }) => {
       description: values.description,
       createdAt: originalValues.createdAt,
       updatedAt: dayjs().format('MM/DD/YYYY'),
+      type: values.type,
       data: data,
     }
 

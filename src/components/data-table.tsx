@@ -114,7 +114,7 @@ export const columns: ColumnDef<Flag>[] = [
   },
   {
     accessorKey: 'data',
-    header: 'Data',
+    header: 'Production',
     cell: ({ row }) => {
       const objectValue = row.getValue('data') as { [key: string]: any }
       const type = row.getValue('type')

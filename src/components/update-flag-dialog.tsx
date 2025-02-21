@@ -1,6 +1,5 @@
-import { ReactNode, useState } from 'react'
+import { useState } from 'react'
 import { UpdateFlagForm } from './update-flag-form'
-import { Button } from './ui/button'
 import {
   Dialog,
   DialogContent,
@@ -18,10 +17,8 @@ export const UpdateFlagDialog = ({ originalValues, children }) => {
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create a new feature flag</DialogTitle>
-          <DialogDescription>
-            Enter the details of your new feature flag
-          </DialogDescription>
+          <DialogTitle>Update the feature flag</DialogTitle>
+          <DialogDescription>Enter the details of your feature flag</DialogDescription>
         </DialogHeader>
         <UpdateFlagForm
           originalValues={originalValues}
