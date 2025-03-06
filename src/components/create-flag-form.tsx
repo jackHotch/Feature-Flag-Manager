@@ -25,6 +25,7 @@ import { Switch } from '@/components/ui/switch'
 import { Trash2 } from 'lucide-react'
 import dayjs from 'dayjs'
 import { createFlag } from '@/lib/featureflag'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
 
 const formSchema = z.object({
   name: z.string(),
@@ -134,21 +135,50 @@ export const CreateFlagForm = ({ closeDialog }) => {
         />
 
         {type == 'toggle' && (
-          <FormField
-            control={form.control}
-            name='toggle'
-            render={({ field }) => (
-              <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
-                <div className='space-y-0.5'>
-                  <FormLabel>Default Value</FormLabel>
-                  <FormDescription>Turn this flag on or off </FormDescription>
-                </div>
-                <FormControl>
-                  <Switch checked={field.value} onCheckedChange={field.onChange} />
-                </FormControl>
-              </FormItem>
-            )}
-          />
+          <Tabs defaultValue='production'>
+            <TabsList className='w-full'>
+              <TabsTrigger className='w-full' value='production'>
+                Production
+              </TabsTrigger>
+              <TabsTrigger className='w-full' value='development'>
+                Development
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value='production'>
+              <FormField
+                control={form.control}
+                name='toggle'
+                render={({ field }) => (
+                  <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
+                    <div className='space-y-0.5'>
+                      <FormLabel>Default Value</FormLabel>
+                      <FormDescription>Turn this flag on or off </FormDescription>
+                    </div>
+                    <FormControl>
+                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </TabsContent>
+            <TabsContent value='development'>
+              <FormField
+                control={form.control}
+                name='toggle'
+                render={({ field }) => (
+                  <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
+                    <div className='space-y-0.5'>
+                      <FormLabel>Default Value</FormLabel>
+                      <FormDescription>Turn this flag on or off </FormDescription>
+                    </div>
+                    <FormControl>
+                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </TabsContent>
+          </Tabs>
         )}
 
         {type == 'json' && (
