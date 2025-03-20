@@ -43,13 +43,18 @@ interface FeatureFlagData {
   [key: string]: any
 }
 
+interface FeatureFlagOutline {
+  development: FeatureFlagData
+  production: FeatureFlagData
+}
+
 export type Flag = {
   name: string
   description: string
   createdAt: string
   updatedAt: string
   type: string
-  data: FeatureFlagData
+  data: FeatureFlagOutline
 }
 
 export const columns: ColumnDef<Flag>[] = [
@@ -113,10 +118,11 @@ export const columns: ColumnDef<Flag>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: 'data',
-    header: 'Production',
+    accessorFn: (row) => row.data?.development,
+    id: 'development',
+    header: 'Development',
     cell: ({ row }) => {
-      const objectValue = row.getValue('data') as { [key: string]: any }
+      const objectValue = row.original.data?.development as { [key: string]: any }
       const type = row.getValue('type')
       if (type && type == 'toggle') {
         return (
@@ -126,7 +132,29 @@ export const columns: ColumnDef<Flag>[] = [
         )
       } else {
         return (
-          <div className='whitespace-nowrap max-w-sm overflow-hidden'>
+          <div className='whitespace-nowrap max-w-xs overflow-hidden'>
+            {JSON.stringify(objectValue)}
+          </div>
+        )
+      }
+    },
+  },
+  {
+    accessorFn: (row) => row.data?.production,
+    id: 'production',
+    header: 'Production',
+    cell: ({ row }) => {
+      const objectValue = row.original.data?.production as { [key: string]: any }
+      const type = row.getValue('type')
+      if (type && type == 'toggle') {
+        return (
+          <div>
+            <Switch disabled checked={objectValue.toggle} />
+          </div>
+        )
+      } else {
+        return (
+          <div className='whitespace-nowrap max-w-xs overflow-hidden'>
             {JSON.stringify(objectValue)}
           </div>
         )
