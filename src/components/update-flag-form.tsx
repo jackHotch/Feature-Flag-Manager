@@ -32,15 +32,23 @@ const formSchema = z.object({
   name: z.string(),
   description: z.string(),
   type: z.string(),
-  toggle: z.boolean().optional(),
-  json: z
-    .array(z.object({ key: z.string(), value: z.string() }))
-    .min(1)
-    .optional(),
+  environments: z.object({
+    development: z.object({
+      toggle: z.boolean().optional(),
+      json: z.array(z.object({ key: z.string(), value: z.string() })).optional(),
+    }),
+    production: z.object({
+      toggle: z.boolean().optional(),
+      json: z.array(z.object({ key: z.string(), value: z.string() })).optional(),
+    }),
+  }),
 })
 
 export const UpdateFlagForm = ({ originalValues, closeDialog }) => {
-  const transformedJson = transformObject(originalValues.data)
+  const transformedJson = {
+    development: transformObject(originalValues.data.development),
+    production: transformObject(originalValues.data.production),
+  }
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -48,21 +56,48 @@ export const UpdateFlagForm = ({ originalValues, closeDialog }) => {
       name: originalValues.name,
       description: originalValues.description,
       type: originalValues.type,
-      toggle: originalValues.data.toggle,
-      json: transformedJson,
+      environments: {
+        development: {
+          toggle: originalValues.data.development.toggle,
+          json: transformedJson.development,
+        },
+        production: {
+          toggle: originalValues.data.production.toggle,
+          json: transformedJson.production,
+        },
+      },
     },
   })
 
   const control = form.control
-  const { fields, append, remove } = useFieldArray({ control, name: 'json' })
+  const {
+    fields: devFields,
+    append: devAppend,
+    remove: devRemove,
+  } = useFieldArray({ control, name: 'environments.development.json' })
+  const {
+    fields: prodFields,
+    append: prodAppend,
+    remove: prodRemove,
+  } = useFieldArray({ control, name: 'environments.production.json' })
   const type = form.watch('type')
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    let data = {}
-    if (values.type == 'toggle') {
-      data = { toggle: values.toggle }
+    let data = {
+      development: {},
+      production: {},
+    }
+
+    if (values.type === 'toggle') {
+      data.development['toggle'] = values.environments.development.toggle
+      data.production['toggle'] = values.environments.production.toggle
     } else {
-      values.json.map((values) => (data[values.key] = values.value))
+      values.environments.development.json?.forEach((item) => {
+        data.development[item.key] = item.value
+      })
+      values.environments.production.json?.forEach((item) => {
+        data.production[item.key] = item.value
+      })
     }
 
     const flag = {
@@ -138,7 +173,7 @@ export const UpdateFlagForm = ({ originalValues, closeDialog }) => {
           )}
         />
 
-        {type == 'toggle' && (
+        {type === 'toggle' && (
           <Tabs defaultValue='production'>
             <TabsList className='w-full'>
               <TabsTrigger className='w-full' value='production'>
@@ -151,7 +186,7 @@ export const UpdateFlagForm = ({ originalValues, closeDialog }) => {
             <TabsContent value='production'>
               <FormField
                 control={form.control}
-                name='toggle'
+                name='environments.production.toggle'
                 render={({ field }) => (
                   <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
                     <div className='space-y-0.5'>
@@ -168,7 +203,7 @@ export const UpdateFlagForm = ({ originalValues, closeDialog }) => {
             <TabsContent value='development'>
               <FormField
                 control={form.control}
-                name='toggle'
+                name='environments.development.toggle'
                 render={({ field }) => (
                   <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
                     <div className='space-y-0.5'>
@@ -185,7 +220,7 @@ export const UpdateFlagForm = ({ originalValues, closeDialog }) => {
           </Tabs>
         )}
 
-        {type == 'json' && (
+        {type === 'json' && (
           <Tabs defaultValue='production'>
             <TabsList className='w-full'>
               <TabsTrigger className='w-full' value='production'>
@@ -197,13 +232,13 @@ export const UpdateFlagForm = ({ originalValues, closeDialog }) => {
             </TabsList>
             <TabsContent value='production'>
               <div className='flex flex-col justify-between rounded-lg border p-4 gap-2'>
-                {fields.map((field, id) => {
+                {prodFields.map((field, id) => {
                   return (
                     <div key={field.id} className='flex w-full gap-2'>
                       <div className='w-full'>
                         <FormField
                           control={form.control}
-                          name={`json.${id}.key`}
+                          name={`environments.production.json.${id}.key`}
                           render={({ field }) => (
                             <FormItem>
                               <FormControl>
@@ -218,7 +253,7 @@ export const UpdateFlagForm = ({ originalValues, closeDialog }) => {
                       <div className='w-full'>
                         <FormField
                           control={form.control}
-                          name={`json.${id}.value`}
+                          name={`environments.production.json.${id}.value`}
                           render={({ field }) => (
                             <FormItem>
                               <FormControl>
@@ -232,7 +267,7 @@ export const UpdateFlagForm = ({ originalValues, closeDialog }) => {
                       <Button
                         variant='destructive'
                         type='button'
-                        onClick={() => remove(id)}
+                        onClick={() => prodRemove(id)}
                       >
                         <Trash2 />
                       </Button>
@@ -243,7 +278,7 @@ export const UpdateFlagForm = ({ originalValues, closeDialog }) => {
                 <Button
                   variant='secondary'
                   type='button'
-                  onClick={() => append({ key: '', value: '' })}
+                  onClick={() => prodAppend({ key: '', value: '' })}
                   className='mt-2'
                 >
                   Add Row
@@ -252,13 +287,13 @@ export const UpdateFlagForm = ({ originalValues, closeDialog }) => {
             </TabsContent>
             <TabsContent value='development'>
               <div className='flex flex-col justify-between rounded-lg border p-4 gap-2'>
-                {fields.map((field, id) => {
+                {devFields.map((field, id) => {
                   return (
                     <div key={field.id} className='flex w-full gap-2'>
                       <div className='w-full'>
                         <FormField
                           control={form.control}
-                          name={`json.${id}.key`}
+                          name={`environments.development.json.${id}.key`}
                           render={({ field }) => (
                             <FormItem>
                               <FormControl>
@@ -273,7 +308,7 @@ export const UpdateFlagForm = ({ originalValues, closeDialog }) => {
                       <div className='w-full'>
                         <FormField
                           control={form.control}
-                          name={`json.${id}.value`}
+                          name={`environments.development.json.${id}.value`}
                           render={({ field }) => (
                             <FormItem>
                               <FormControl>
@@ -287,7 +322,7 @@ export const UpdateFlagForm = ({ originalValues, closeDialog }) => {
                       <Button
                         variant='destructive'
                         type='button'
-                        onClick={() => remove(id)}
+                        onClick={() => devRemove(id)}
                       >
                         <Trash2 />
                       </Button>
@@ -298,7 +333,7 @@ export const UpdateFlagForm = ({ originalValues, closeDialog }) => {
                 <Button
                   variant='secondary'
                   type='button'
-                  onClick={() => append({ key: '', value: '' })}
+                  onClick={() => devAppend({ key: '', value: '' })}
                   className='mt-2'
                 >
                   Add Row
