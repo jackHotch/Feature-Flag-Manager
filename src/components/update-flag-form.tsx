@@ -26,6 +26,7 @@ import { Trash2 } from 'lucide-react'
 import dayjs from 'dayjs'
 import { updateFlag } from '@/lib/featureflag'
 import { transformObject } from '@/lib/utils'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
 
 const formSchema = z.object({
   name: z.string(),
@@ -138,73 +139,173 @@ export const UpdateFlagForm = ({ originalValues, closeDialog }) => {
         />
 
         {type == 'toggle' && (
-          <FormField
-            control={form.control}
-            name='toggle'
-            render={({ field }) => (
-              <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
-                <div className='space-y-0.5'>
-                  <FormLabel>Default Value</FormLabel>
-                  <FormDescription>Turn this flag on or off </FormDescription>
-                </div>
-                <FormControl>
-                  <Switch checked={field.value} onCheckedChange={field.onChange} />
-                </FormControl>
-              </FormItem>
-            )}
-          />
+          <Tabs defaultValue='production'>
+            <TabsList className='w-full'>
+              <TabsTrigger className='w-full' value='production'>
+                Production
+              </TabsTrigger>
+              <TabsTrigger className='w-full' value='development'>
+                Development
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value='production'>
+              <FormField
+                control={form.control}
+                name='toggle'
+                render={({ field }) => (
+                  <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
+                    <div className='space-y-0.5'>
+                      <FormLabel>Default Value</FormLabel>
+                      <FormDescription>Turn this flag on or off </FormDescription>
+                    </div>
+                    <FormControl>
+                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </TabsContent>
+            <TabsContent value='development'>
+              <FormField
+                control={form.control}
+                name='toggle'
+                render={({ field }) => (
+                  <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
+                    <div className='space-y-0.5'>
+                      <FormLabel>Default Value</FormLabel>
+                      <FormDescription>Turn this flag on or off </FormDescription>
+                    </div>
+                    <FormControl>
+                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </TabsContent>
+          </Tabs>
         )}
 
         {type == 'json' && (
-          <div className='flex flex-col justify-between rounded-lg border p-4 gap-2'>
-            {fields.map((field, id) => {
-              return (
-                <div key={field.id} className='flex w-full gap-2'>
-                  <div className='w-full'>
-                    <FormField
-                      control={form.control}
-                      name={`json.${id}.key`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input placeholder='Key' {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+          <Tabs defaultValue='production'>
+            <TabsList className='w-full'>
+              <TabsTrigger className='w-full' value='production'>
+                Production
+              </TabsTrigger>
+              <TabsTrigger className='w-full' value='development'>
+                Development
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value='production'>
+              <div className='flex flex-col justify-between rounded-lg border p-4 gap-2'>
+                {fields.map((field, id) => {
+                  return (
+                    <div key={field.id} className='flex w-full gap-2'>
+                      <div className='w-full'>
+                        <FormField
+                          control={form.control}
+                          name={`json.${id}.key`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input placeholder='Key' {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
 
-                  <div className='w-full'>
-                    <FormField
-                      control={form.control}
-                      name={`json.${id}.value`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input placeholder='Value' {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <Button variant='destructive' type='button' onClick={() => remove(id)}>
-                    <Trash2 />
-                  </Button>
-                </div>
-              )
-            })}
+                      <div className='w-full'>
+                        <FormField
+                          control={form.control}
+                          name={`json.${id}.value`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input placeholder='Value' {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <Button
+                        variant='destructive'
+                        type='button'
+                        onClick={() => remove(id)}
+                      >
+                        <Trash2 />
+                      </Button>
+                    </div>
+                  )
+                })}
 
-            <Button
-              variant='secondary'
-              type='button'
-              onClick={() => append({ key: '', value: '' })}
-              className='mt-2'
-            >
-              Add Row
-            </Button>
-          </div>
+                <Button
+                  variant='secondary'
+                  type='button'
+                  onClick={() => append({ key: '', value: '' })}
+                  className='mt-2'
+                >
+                  Add Row
+                </Button>
+              </div>
+            </TabsContent>
+            <TabsContent value='development'>
+              <div className='flex flex-col justify-between rounded-lg border p-4 gap-2'>
+                {fields.map((field, id) => {
+                  return (
+                    <div key={field.id} className='flex w-full gap-2'>
+                      <div className='w-full'>
+                        <FormField
+                          control={form.control}
+                          name={`json.${id}.key`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input placeholder='Key' {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <div className='w-full'>
+                        <FormField
+                          control={form.control}
+                          name={`json.${id}.value`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input placeholder='Value' {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <Button
+                        variant='destructive'
+                        type='button'
+                        onClick={() => remove(id)}
+                      >
+                        <Trash2 />
+                      </Button>
+                    </div>
+                  )
+                })}
+
+                <Button
+                  variant='secondary'
+                  type='button'
+                  onClick={() => append({ key: '', value: '' })}
+                  className='mt-2'
+                >
+                  Add Row
+                </Button>
+              </div>
+            </TabsContent>
+          </Tabs>
         )}
         <Button type='submit'>Submit</Button>
       </form>

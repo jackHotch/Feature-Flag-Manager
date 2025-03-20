@@ -31,11 +31,16 @@ const formSchema = z.object({
   name: z.string(),
   description: z.string(),
   type: z.string(),
-  toggle: z.boolean().optional(),
-  json: z
-    .array(z.object({ key: z.string(), value: z.string() }))
-    .min(1)
-    .optional(),
+  environments: z.object({
+    development: z.object({
+      toggle: z.boolean().optional(),
+      json: z.array(z.object({ key: z.string(), value: z.string() })).optional(),
+    }),
+    production: z.object({
+      toggle: z.boolean().optional(),
+      json: z.array(z.object({ key: z.string(), value: z.string() })).optional(),
+    }),
+  }),
 })
 
 export const CreateFlagForm = ({ closeDialog }) => {
@@ -45,21 +50,48 @@ export const CreateFlagForm = ({ closeDialog }) => {
       name: '',
       description: '',
       type: '',
-      toggle: false,
-      json: [{ key: '', value: '' }],
+      environments: {
+        development: {
+          toggle: false,
+          json: [{ key: '', value: '' }],
+        },
+        production: {
+          toggle: false,
+          json: [{ key: '', value: '' }],
+        },
+      },
     },
   })
 
   const control = form.control
-  const { fields, append, remove } = useFieldArray({ control, name: 'json' })
+  const {
+    fields: devFields,
+    append: devAppend,
+    remove: devRemove,
+  } = useFieldArray({ control, name: 'environments.development.json' })
+  const {
+    fields: prodFields,
+    append: prodAppend,
+    remove: prodRemove,
+  } = useFieldArray({ control, name: 'environments.production.json' })
   const type = form.watch('type')
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    let data = {}
-    if (values.type == 'toggle') {
-      data = { toggle: values.toggle }
+    let data = {
+      development: {},
+      production: {},
+    }
+
+    if (values.type === 'toggle') {
+      data.development['toggle'] = values.environments.development.toggle
+      data.production['toggle'] = values.environments.production.toggle
     } else {
-      values.json.map((values) => (data[values.key] = values.value))
+      values.environments.development.json?.forEach((item) => {
+        data.development[item.key] = item.value
+      })
+      values.environments.production.json?.forEach((item) => {
+        data.production[item.key] = item.value
+      })
     }
 
     const flag = {
@@ -67,6 +99,7 @@ export const CreateFlagForm = ({ closeDialog }) => {
       description: values.description,
       createdAt: dayjs().format('MM/DD/YYYY'),
       updatedAt: dayjs().format('MM/DD/YYYY'),
+      type: values.type,
       data: data,
     }
 
@@ -134,7 +167,7 @@ export const CreateFlagForm = ({ closeDialog }) => {
           )}
         />
 
-        {type == 'toggle' && (
+        {type === 'toggle' && (
           <Tabs defaultValue='production'>
             <TabsList className='w-full'>
               <TabsTrigger className='w-full' value='production'>
@@ -147,7 +180,7 @@ export const CreateFlagForm = ({ closeDialog }) => {
             <TabsContent value='production'>
               <FormField
                 control={form.control}
-                name='toggle'
+                name='environments.production.toggle'
                 render={({ field }) => (
                   <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
                     <div className='space-y-0.5'>
@@ -164,7 +197,7 @@ export const CreateFlagForm = ({ closeDialog }) => {
             <TabsContent value='development'>
               <FormField
                 control={form.control}
-                name='toggle'
+                name='environments.development.toggle'
                 render={({ field }) => (
                   <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
                     <div className='space-y-0.5'>
@@ -181,56 +214,127 @@ export const CreateFlagForm = ({ closeDialog }) => {
           </Tabs>
         )}
 
-        {type == 'json' && (
-          <div className='flex flex-col justify-between rounded-lg border p-4 gap-2'>
-            {fields.map((field, id) => {
-              return (
-                <div key={field.id} className='flex w-full gap-2'>
-                  <div className='w-full'>
-                    <FormField
-                      control={form.control}
-                      name={`json.${id}.key`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input placeholder='Key' {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+        {type === 'json' && (
+          <Tabs defaultValue='production'>
+            <TabsList className='w-full'>
+              <TabsTrigger className='w-full' value='production'>
+                Production
+              </TabsTrigger>
+              <TabsTrigger className='w-full' value='development'>
+                Development
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value='production'>
+              <div className='flex flex-col justify-between rounded-lg border p-4 gap-2'>
+                {prodFields.map((field, id) => {
+                  return (
+                    <div key={field.id} className='flex w-full gap-2'>
+                      <div className='w-full'>
+                        <FormField
+                          control={form.control}
+                          name={`environments.production.json.${id}.key`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input placeholder='Key' {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
 
-                  <div className='w-full'>
-                    <FormField
-                      control={form.control}
-                      name={`json.${id}.value`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input placeholder='Value' {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <Button variant='destructive' type='button' onClick={() => remove(id)}>
-                    <Trash2 />
-                  </Button>
-                </div>
-              )
-            })}
+                      <div className='w-full'>
+                        <FormField
+                          control={form.control}
+                          name={`environments.production.json.${id}.value`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input placeholder='Value' {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <Button
+                        variant='destructive'
+                        type='button'
+                        onClick={() => prodRemove(id)}
+                      >
+                        <Trash2 />
+                      </Button>
+                    </div>
+                  )
+                })}
 
-            <Button
-              variant='secondary'
-              type='button'
-              onClick={() => append({ key: '', value: '' })}
-              className='mt-2'
-            >
-              Add Row
-            </Button>
-          </div>
+                <Button
+                  variant='secondary'
+                  type='button'
+                  onClick={() => prodAppend({ key: '', value: '' })}
+                  className='mt-2'
+                >
+                  Add Row
+                </Button>
+              </div>
+            </TabsContent>
+            <TabsContent value='development'>
+              <div className='flex flex-col justify-between rounded-lg border p-4 gap-2'>
+                {devFields.map((field, id) => {
+                  return (
+                    <div key={field.id} className='flex w-full gap-2'>
+                      <div className='w-full'>
+                        <FormField
+                          control={form.control}
+                          name={`environments.development.json.${id}.key`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input placeholder='Key' {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <div className='w-full'>
+                        <FormField
+                          control={form.control}
+                          name={`environments.development.json.${id}.value`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input placeholder='Value' {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <Button
+                        variant='destructive'
+                        type='button'
+                        onClick={() => devRemove(id)}
+                      >
+                        <Trash2 />
+                      </Button>
+                    </div>
+                  )
+                })}
+
+                <Button
+                  variant='secondary'
+                  type='button'
+                  onClick={() => devAppend({ key: '', value: '' })}
+                  className='mt-2'
+                >
+                  Add Row
+                </Button>
+              </div>
+            </TabsContent>
+          </Tabs>
         )}
         <Button type='submit'>Submit</Button>
       </form>
