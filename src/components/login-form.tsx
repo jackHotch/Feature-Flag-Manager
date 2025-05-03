@@ -86,12 +86,6 @@ export const LoginForm = ({ className, ...props }: LoginFormProps) => {
                   <FormItem className='flex flex-col'>
                     <div className='flex justify-between items-center'>
                       <FormLabel>Password</FormLabel>
-                      <a
-                        href='#'
-                        className='ml-auto inline-block text-sm underline-offset-4 hover:underline'
-                      >
-                        Forgot your password?
-                      </a>
                     </div>
                     <FormControl>
                       <Input type='password' {...field} />
