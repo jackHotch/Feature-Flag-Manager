@@ -3,7 +3,7 @@ import './globals.css'
 import { AuthProvider } from '@/providers/auth-provider'
 
 export const metadata = {
-  title: 'Feature Flags',
+  title: 'Spotter',
 }
 
 export default function RootLayout({
