@@ -19,7 +19,7 @@ export const logout = async () => {
 }
 
 export const getFlags = async (setFlags) => {
-  const data = await getDocs(collection(db, 'gymapp'))
+  const data = await getDocs(collection(db, 'testproject'))
   const filteredData = data.docs.map((doc) => ({
     ...doc.data(),
     name: doc.id,
@@ -28,7 +28,7 @@ export const getFlags = async (setFlags) => {
 }
 
 export const createFlag = async (flag) => {
-  const collectionRef = collection(db, 'gymapp')
+  const collectionRef = collection(db, 'testproject')
   const { name, ...data } = flag
   const docRef = doc(collectionRef, name)
   try {
@@ -45,7 +45,7 @@ export const deleteFlags = async (flagNames: string[]) => {
     const batch = writeBatch(db)
 
     flagNames.forEach((name) => {
-      const docRef = doc(db, 'gymapp', name)
+      const docRef = doc(db, 'testproject', name)
       batch.delete(docRef)
     })
 
@@ -57,7 +57,7 @@ export const deleteFlags = async (flagNames: string[]) => {
 }
 
 export const updateFlag = async (flag) => {
-  const collectionRef = collection(db, 'gymapp')
+  const collectionRef = collection(db, 'testproject')
   const { name, ...data } = flag
   const docRef = doc(collectionRef, name)
   try {
